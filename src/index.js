@@ -22,6 +22,7 @@ function checksExistsUserAccount(request, response, next) {
 function checksCreateTodosUserAvailability(request, response, next) {
   const { user } = request;
   if (user.pro || (!user.pro && user.todos.length < 10)) return next();
+  return response.status(403);
 }
 
 function checksTodoExists(request, response, next) {
@@ -49,7 +50,12 @@ function checksTodoExists(request, response, next) {
 
 function findUserById(request, response, next) {
   const { id } = request.params;
-
+  const user = users.find(user => user.id === id);
+  if (!user) return response.status(404).json({
+    error: "User not found"
+  });
+  request.user = user;
+  return next();
 }
 
 app.post('/users', (request, response) => {
